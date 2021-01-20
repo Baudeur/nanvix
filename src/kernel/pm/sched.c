@@ -26,7 +26,7 @@
 
 /**
  * @brief Schedules a process to execution.
- * 
+ *
  * @param proc Process to be scheduled.
  */
 PUBLIC void sched(struct process *proc)
@@ -47,13 +47,13 @@ PUBLIC void stop(void)
 
 /**
  * @brief Resumes a process.
- * 
+ *
  * @param proc Process to be resumed.
- * 
+ *
  * @note The process must stopped to be resumed.
  */
 PUBLIC void resume(struct process *proc)
-{	
+{
 	/* Resume only if process has stopped. */
 	if (proc->state == PROC_STOPPED)
 		sched(proc);
@@ -62,6 +62,9 @@ PUBLIC void resume(struct process *proc)
 /**
  * @brief Yields the processor.
  */
+
+int tirage = 256;
+
 PUBLIC void yield(void)
 {
 	struct process *p;    /* Working process.     */
@@ -80,7 +83,7 @@ PUBLIC void yield(void)
 		/* Skip invalid processes. */
 		if (!IS_VALID(p))
 			continue;
-		
+
 		/* Alarm has expired. */
 		if ((p->alarm) && (p->alarm < ticks))
 			p->alarm = 0, sndsig(p, SIGALRM);
@@ -88,30 +91,44 @@ PUBLIC void yield(void)
 
 	/* Choose a process to run next. */
 	next = IDLE;
+	int nb = 0;
+	for(p = FIRST_PROC; p <= LAST_PROC; p++) {
+		if(p->state == PROC_READY) {
+			nb++;
+		}
+	}
+
+	tirage = (115*tirage+nb)%10000;
+
+	int tire = 0;
+	if(nb != 0) {
+		tire = tirage%nb;
+	}
+	int acc = 0;
+
 	for (p = FIRST_PROC; p <= LAST_PROC; p++)
 	{
 		/* Skip non-ready process. */
 		if (p->state != PROC_READY)
 			continue;
-		
+
 		/*
 		 * Process with higher
 		 * waiting time found.
 		 */
-		if (p->counter > next->counter)
-		{
-			next->counter++;
-			next = p;
-		}
-			
+
+		 if(tire == acc) {
+			 next = p;
+		 }
+		 acc++;
+
 		/*
 		 * Increment waiting
 		 * time of process.
 		 */
-		else
-			p->counter++;
+
 	}
-	
+
 	/* Switch to next process. */
 	next->priority = PRIO_USER;
 	next->state = PROC_RUNNING;
