@@ -24,6 +24,13 @@
 #include <nanvix/pm.h>
 #include <signal.h>
 
+unsigned bit;
+unsigned lfsr = 0xACE1u;
+unsigned rand2(){
+	bit = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5)) & 1;
+	return lfsr = (lfsr >> 1) | (bit << 15);
+}
+
 /**
  * @brief Schedules a process to execution.
  *
@@ -98,8 +105,8 @@ PUBLIC void yield(void)
 		}
 	}
 
-	tirage = (115*tirage+nb)%10000;
-
+	//tirage = (119*tirage+nb)%10000;
+	tirage = rand2()%10000;
 	int tire = 0;
 	if(nb != 0) {
 		tire = tirage%nb;
