@@ -83,8 +83,10 @@ PUBLIC void yield(void)
 
 	/* Remember this process. */
 	last_proc = curr_proc;
-	if(last_proc != IDLE && last_proc->state != PROC_DEAD && last_proc->state != PROC_ZOMBIE) {
-		last_proc->priority--;
+	if(last_proc->state != PROC_DEAD && last_proc->state != PROC_ZOMBIE) {
+		if(last_proc->priority > 0) {
+			last_proc->priority--;
+		}
 	}
 
 	/* Check alarm. */
@@ -101,10 +103,10 @@ PUBLIC void yield(void)
 
 	/* Choose a process to run next. */
 	next = IDLE;
-	int min_prio = 40;
+	int max_prio = 0;
 	for(p = FIRST_PROC; p <= LAST_PROC; p++) {
-		if(p->state == PROC_READY && p->priority < min_prio) {
-			min_prio = p->priority;
+		if(p->state == PROC_READY && p->priority > max_prio) {
+			max_prio = p->priority;
 		}
 	}
 
@@ -119,7 +121,7 @@ PUBLIC void yield(void)
 	for (p = FIRST_PROC; p <= LAST_PROC; p++)
 	{
 		/* Skip non-ready process. */
-		if (p->state != PROC_READY || p->priority != min_prio)
+		if (p->state != PROC_READY || p->priority != max_prio)
 			continue;
 
 		/*
@@ -132,6 +134,8 @@ PUBLIC void yield(void)
 				next->counter++;
 			}
 			next = p;
+		} else {
+			p->counter++;
 		}
 
 		/*
@@ -143,10 +147,10 @@ PUBLIC void yield(void)
 
 	/* Switch to next process. */
 	if(next != IDLE) {
-		next->counter = PROC_QUANTUM;
 	} else {
 		next->priority = 0;
 	}
+	next->counter = PROC_QUANTUM;
 	next->state = PROC_RUNNING;
 	if (curr_proc != next)
 		switch_to(next);
