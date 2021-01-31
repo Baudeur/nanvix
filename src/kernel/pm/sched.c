@@ -101,7 +101,7 @@ PUBLIC void yield(void)
 	int nb = 0;
 	for(p = FIRST_PROC; p <= LAST_PROC; p++) {
 		if(p->state == PROC_READY) {
-			nb++;
+			nb = nb+40-p->nice;
 		}
 	}
 
@@ -124,10 +124,10 @@ PUBLIC void yield(void)
 		 * waiting time found.
 		 */
 
-		 if(tire == acc) {
+		 if(tire >= acc && tire < acc+40-p->nice) {
 			 next = p;
 		 }
-		 acc++;
+		 acc += 40-p->nice;
 
 		/*
 		 * Increment waiting
@@ -137,9 +137,13 @@ PUBLIC void yield(void)
 	}
 
 	/* Switch to next process. */
-	next->priority = PRIO_USER;
+	if(next != IDLE) {
+		next->priority = PRIO_USER;
+		next->counter = PROC_QUANTUM;
+	} else {
+		next->priority = 0;
+	}
 	next->state = PROC_RUNNING;
-	next->counter = PROC_QUANTUM;
 	if (curr_proc != next)
 		switch_to(next);
 }
