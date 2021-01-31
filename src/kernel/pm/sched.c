@@ -104,7 +104,7 @@ PUBLIC void yield(void)
 	int min_prio = 40;
 	for(p = FIRST_PROC; p <= LAST_PROC; p++) {
 		if(p->state == PROC_READY && p->priority < min_prio) {
-			min_prio = p->priority
+			min_prio = p->priority;
 		}
 	}
 
@@ -129,7 +129,7 @@ PUBLIC void yield(void)
 
 		if(next->counter < p->counter) {
 			if(next != IDLE) {
-				next->counter++
+				next->counter++;
 			}
 			next = p;
 		}
