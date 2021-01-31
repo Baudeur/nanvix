@@ -83,6 +83,9 @@ PUBLIC void yield(void)
 
 	/* Remember this process. */
 	last_proc = curr_proc;
+	if(last_proc != IDLE && last_proc->state != PROC_DEAD && last_proc->state != PROC_ZOMBIE) {
+		last_proc->priority--;
+	}
 
 	/* Check alarm. */
 	for (p = FIRST_PROC; p <= LAST_PROC; p++)
@@ -98,25 +101,25 @@ PUBLIC void yield(void)
 
 	/* Choose a process to run next. */
 	next = IDLE;
-	int nb = 0;
+	int min_prio = 40;
 	for(p = FIRST_PROC; p <= LAST_PROC; p++) {
-		if(p->state == PROC_READY) {
-			nb = nb+1+40-p->nice;
+		if(p->state == PROC_READY && p->priority < min_prio) {
+			min_prio = p->priority
 		}
 	}
 
-	//tirage = (119*tirage+nb)%10000;
-	tirage = rand2()%10000;
-	int tire = 0;
-	if(nb != 0) {
-		tire = tirage%nb;
-	}
-	int acc = 0;
+	// //tirage = (119*tirage+nb)%10000;
+	// tirage = rand2()%10000;
+	// int tire = 0;
+	// if(nb != 0) {
+	// 	tire = tirage%nb;
+	// }
+	// int acc = 0;
 
 	for (p = FIRST_PROC; p <= LAST_PROC; p++)
 	{
 		/* Skip non-ready process. */
-		if (p->state != PROC_READY)
+		if (p->state != PROC_READY || p->priority != min_prio)
 			continue;
 
 		/*
@@ -124,10 +127,12 @@ PUBLIC void yield(void)
 		 * waiting time found.
 		 */
 
-		 if(tire >= acc && tire < acc+1+40-p->nice) {
-			 next = p;
-		 }
-		 acc += 1+40-p->nice;
+		if(next->counter < p->counter) {
+			if(next != IDLE) {
+				next->counter++
+			}
+			next = p;
+		}
 
 		/*
 		 * Increment waiting
@@ -138,7 +143,6 @@ PUBLIC void yield(void)
 
 	/* Switch to next process. */
 	if(next != IDLE) {
-		next->priority = PRIO_USER;
 		next->counter = PROC_QUANTUM;
 	} else {
 		next->priority = 0;
