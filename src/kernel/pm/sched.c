@@ -101,7 +101,7 @@ PUBLIC void yield(void)
 	int nb = 0;
 	for(p = FIRST_PROC; p <= LAST_PROC; p++) {
 		if(p->state == PROC_READY) {
-			nb = nb+40-p->nice;
+			nb = nb+1+40-p->nice;
 		}
 	}
 
@@ -124,10 +124,10 @@ PUBLIC void yield(void)
 		 * waiting time found.
 		 */
 
-		 if(tire >= acc && tire < acc+40-p->nice) {
+		 if(tire >= acc && tire < acc+1+40-p->nice) {
 			 next = p;
 		 }
-		 acc += 40-p->nice;
+		 acc += 1+40-p->nice;
 
 		/*
 		 * Increment waiting
