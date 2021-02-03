@@ -91,7 +91,7 @@ PUBLIC void yield(void)
 	for (p = FIRST_PROC; p <= LAST_PROC; p++)
 	{
 		/* Skip non-ready process. */
-		if (p->state != PROC_READY)
+		if (p->state != PROC_READY || p == IDLE)
 			continue;
 
 		/*
