@@ -100,7 +100,9 @@ PUBLIC void yield(void)
 		 */
 		if (p->counter-p->nice > next->counter-next->nice)
 		{
-			next->counter++;
+			if(next != IDLE) {
+				next->counter++;
+			}
 			next = p;
 		}
 
@@ -113,7 +115,9 @@ PUBLIC void yield(void)
 	}
 
 	/* Switch to next process. */
-	next->priority = PRIO_USER;
+	if(next != IDLE) {
+		next->priority = PRIO_USER;
+	}
 	next->state = PROC_RUNNING;
 	next->counter = PROC_QUANTUM;
 	if (curr_proc != next)
