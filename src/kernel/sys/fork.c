@@ -149,7 +149,7 @@ found:
 	proc->ktime = 0;
 	proc->cutime = 0;
 	proc->cktime = 0;
-	proc->priority = 40;
+	proc->priority = curr_proc->priority;
 	proc->nice = curr_proc->nice;
 	proc->alarm = 0;
 	proc->next = NULL;
