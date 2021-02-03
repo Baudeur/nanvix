@@ -100,7 +100,7 @@ PUBLIC void yield(void)
 	next = IDLE;
 	int nb = 0;
 	for(p = FIRST_PROC; p <= LAST_PROC; p++) {
-		if(p->state == PROC_READY) {
+		if(p->state == PROC_READY && p != IDLE) {
 			nb = nb+1+40-p->nice;
 		}
 	}
@@ -116,7 +116,7 @@ PUBLIC void yield(void)
 	for (p = FIRST_PROC; p <= LAST_PROC; p++)
 	{
 		/* Skip non-ready process. */
-		if (p->state != PROC_READY)
+		if (p->state != PROC_READY || p == IDLE)
 			continue;
 
 		/*
@@ -139,10 +139,10 @@ PUBLIC void yield(void)
 	/* Switch to next process. */
 	if(next != IDLE) {
 		next->priority = PRIO_USER;
-		next->counter = PROC_QUANTUM;
 	} else {
 		next->priority = 0;
 	}
+	next->counter = PROC_QUANTUM;
 	next->state = PROC_RUNNING;
 	if (curr_proc != next)
 		switch_to(next);
